@@ -1,11 +1,9 @@
-name: Build Forge Mod (Minecraft 1.20.1)
+name: Build & Release Forge Mod
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch:
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -30,8 +28,9 @@ jobs:
       - name: Build
         run: ./gradlew clean build
 
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload JAR to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: customgolem-jar
-          path: build/libs/*.jar
+          files: build/libs/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
