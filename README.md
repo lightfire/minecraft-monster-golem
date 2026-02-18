@@ -262,6 +262,24 @@ src/main/java/com/kadirergun/monstergolem/
 
 ## 📝 Version Tarihi
 
+### v1.0.7 - 2026-02-18
+- ✨ Yeni Özellikler
+  - Kalıcı Seviye & XP (NBT Kaydet/Yükle): Monster Golem'in level ve XP bilgileri artık dünyaya kaydediliyor. Oyundan çıkıp girince seviye sıfırlanmıyor.
+  - Boss Bar Geliştirmeleri: Boss bar dinamik olarak ismi ve can oranını güncelliyor; dünya yüklendiğinde boss bar adı senkronize ediliyor.
+  - Genişletilmiş Algılama & Daha Akıllı Hedefleme: Algılama menzili 48 blok olarak ayarlandı. Hedef yolunu daha sık (her 0.5 saniyede bir) güncelliyor. `HurtByTargetGoal` eklendi, saldırıya uğradığında karşılık veriyor.
+  - Dost Ateşi Önleme: Monster Golemler birbirine saldırmıyor; oyuncular ve diğer Monster Golemler müttefik olarak değerlendiriliyor.
+  - Ateş Bağışıklığı: Golem ateşe ve kendi fırlattığı ateş toplarına karşı bağışık hale getirildi.
+  - Meşale Aydınlatma Sistemi: Golem yürüdüğü yeri otomatik olarak aydınlatıyor (Light Block) ve görsel olarak elinde meşale tutuyor.
+  - Geliştirilmiş Savaş: Yakın dövüş saldırı hızı artırıldı; Creeper'lara ekstra hasar uygulanıyor; uzaktan saldırılar (ateş topu + kar topu) cooldown ile çalışıyor.
+  - Leveling Sistemi İyileştirmeleri: Level atladığında daha fazla can ve saldırı gücü, daha güçlü anlık iyileşme sağlanıyor; seviye atlayınca isim ve boss bar otomatik güncelleniyor.
+  - Armor Yükseltme Sistemi: Oyuncular zırh vererek golem'in armor değerini artırabiliyor; zırh türlerine göre Leather → Netherite arasında farklı bonuslar uygulanıyor.
+  - Yerelleştirme Desteği: Spawn egg ve entity isimleri `lang` dosyalarına taşındı; golem isim formatı artık localization üzerinden geliyor (çok dilli destek).
+  - AI Davranış İyileştirmeleri: Golem daha geniş alanı tarıyor, boşta gezerken devriye atıyor ve oyunculara bakıyor.
+
+- 🛠 Notlar
+  - Bu sürüm, verilerin kalıcılığı, AI geliştirmeleri ve savaş mekaniği iyileştirmelerine odaklanmıştır.
+  - Kod tarafında gerekli NBT okuma/yazma, boss bar sync ve hedefleme iyileştirmeleri uygulandı.
+
 ### v1.0.0
 - ✨ İlk sürüm yayınlandı
 - 🔥 Fireball ve Snowball yetenekleri
