@@ -18,6 +18,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -33,17 +34,17 @@ import java.util.List;
 
 public class AphernixEntity extends PathfinderMob {
     private static final double ITEM_SEARCH_RANGE = 12.0D;
+
     private ItemEntity wantedItem;
     private int itemSearchCooldown;
     private boolean monsterWasPresent;
     private int bowAnimationTicks;
-    private int randomJumpCooldown;
     private int diamondCooldown;
 
     public AphernixEntity(EntityType<? extends AphernixEntity> entityType, Level level) {
         super(entityType, level);
         this.setPersistenceRequired();
-        this.randomJumpCooldown = 50 + this.random.nextInt(90);
+        this.setMaxUpStep(1.1F);
         this.diamondCooldown = 600 + this.random.nextInt(601);
     }
 
@@ -79,7 +80,8 @@ public class AphernixEntity extends PathfinderMob {
 
         protectNearestPlayer();
         tickDiamondAppearance();
-        tickRandomJump();
+        tickObstacleJump();
+        tickOffhandUse();
 
         if (this.tickCount % 5 == 0) {
             updateBattleState();
@@ -101,20 +103,33 @@ public class AphernixEntity extends PathfinderMob {
         }
     }
 
-    private void tickRandomJump() {
-        if (this.randomJumpCooldown > 0) {
-            this.randomJumpCooldown--;
-            return;
-        }
+    private void tickObstacleJump() {
+        boolean shouldJump = this.onGround()
+                && this.horizontalCollision
+                && !this.getNavigation().isDone()
+                && this.bowAnimationTicks <= 0;
 
-        this.randomJumpCooldown = 50 + this.random.nextInt(90);
-        boolean canJump = this.onGround()
-                && this.bowAnimationTicks <= 0
-                && this.getTarget() == null
-                && this.wantedItem == null;
-
-        if (canJump) {
+        if (shouldJump) {
             this.jumpControl.jump();
+        }
+    }
+
+    private void tickOffhandUse() {
+        ItemStack offhand = this.getOffhandItem();
+        LivingEntity target = this.getTarget();
+
+        boolean shouldBlock = offhand.is(Items.SHIELD)
+                && target != null
+                && target.isAlive()
+                && this.distanceToSqr(target) > 6.25D
+                && this.distanceToSqr(target) < 196.0D;
+
+        if (shouldBlock) {
+            if (!this.isUsingItem()) {
+                this.startUsingItem(InteractionHand.OFF_HAND);
+            }
+        } else if (this.isUsingItem() && this.getUsedItemHand() == InteractionHand.OFF_HAND) {
+            this.stopUsingItem();
         }
     }
 
@@ -155,7 +170,8 @@ public class AphernixEntity extends PathfinderMob {
         }
 
         LivingEntity playerTarget = player.getLastHurtMob();
-        if (playerTarget instanceof Monster && playerTarget.isAlive() && this.distanceToSqr(playerTarget) <= 1024.0D) {
+        boolean validPlayerTarget = playerTarget instanceof Monster || playerTarget instanceof Animal;
+        if (validPlayerTarget && playerTarget.isAlive() && this.distanceToSqr(playerTarget) <= 1024.0D) {
             this.setTarget(playerTarget);
         }
     }
@@ -244,7 +260,15 @@ public class AphernixEntity extends PathfinderMob {
             return armorScore(stack) > armorScore(this.getItemBySlot(slot));
         }
 
+        if (isOffhandItem(stack)) {
+            return offhandScore(stack) > offhandScore(this.getOffhandItem());
+        }
+
         return false;
+    }
+
+    private static boolean isOffhandItem(ItemStack stack) {
+        return stack.is(Items.TOTEM_OF_UNDYING) || stack.is(Items.SHIELD);
     }
 
     private static float swordScore(ItemStack stack) {
@@ -261,6 +285,16 @@ public class AphernixEntity extends PathfinderMob {
         return armor.getDefense() + armor.getToughness() + (stack.isEnchanted() ? 0.5F : 0.0F);
     }
 
+    private static float offhandScore(ItemStack stack) {
+        if (stack.is(Items.TOTEM_OF_UNDYING)) {
+            return 100.0F;
+        }
+        if (stack.is(Items.SHIELD)) {
+            return 10.0F + (stack.isEnchanted() ? 0.5F : 0.0F);
+        }
+        return -1.0F;
+    }
+
     private void equipFromGround(ItemEntity itemEntity) {
         ItemStack groundStack = itemEntity.getItem();
         if (!isUseful(groundStack)) {
@@ -275,8 +309,14 @@ public class AphernixEntity extends PathfinderMob {
             slot = EquipmentSlot.MAINHAND;
         } else if (equippedStack.getItem() instanceof ArmorItem armor) {
             slot = armor.getEquipmentSlot();
+        } else if (isOffhandItem(equippedStack)) {
+            slot = EquipmentSlot.OFFHAND;
         } else {
             return;
+        }
+
+        if (this.isUsingItem() && this.getUsedItemHand() == InteractionHand.OFF_HAND) {
+            this.stopUsingItem();
         }
 
         ItemStack oldStack = this.getItemBySlot(slot);
