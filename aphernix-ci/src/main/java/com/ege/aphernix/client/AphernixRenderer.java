@@ -12,6 +12,9 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.Items;
 
 public class AphernixRenderer extends MobRenderer<AphernixEntity, PlayerModel<AphernixEntity>> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(AphernixMod.MOD_ID, "textures/entity/aphernix.png");
@@ -38,7 +41,28 @@ public class AphernixRenderer extends MobRenderer<AphernixEntity, PlayerModel<Ap
     public void render(AphernixEntity entity, float entityYaw, float partialTicks, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight) {
         this.model.crouching = entity.isCrouching();
+        this.model.rightArmPose = HumanoidModel.ArmPose.EMPTY;
+        this.model.leftArmPose = HumanoidModel.ArmPose.EMPTY;
+
+        if (!entity.getMainHandItem().isEmpty()) {
+            setArmPose(entity.getMainArm(), HumanoidModel.ArmPose.ITEM);
+        }
+
+        if (entity.isUsingItem()
+                && entity.getUsedItemHand() == InteractionHand.OFF_HAND
+                && entity.getUseItem().is(Items.SHIELD)) {
+            setArmPose(entity.getMainArm().getOpposite(), HumanoidModel.ArmPose.BLOCK);
+        }
+
         super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+    }
+
+    private void setArmPose(HumanoidArm arm, HumanoidModel.ArmPose pose) {
+        if (arm == HumanoidArm.RIGHT) {
+            this.model.rightArmPose = pose;
+        } else {
+            this.model.leftArmPose = pose;
+        }
     }
 
     @Override
