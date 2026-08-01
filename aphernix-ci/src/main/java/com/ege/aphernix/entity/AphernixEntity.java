@@ -23,6 +23,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.level.Level;
 
@@ -36,10 +37,14 @@ public class AphernixEntity extends PathfinderMob {
     private int itemSearchCooldown;
     private boolean monsterWasPresent;
     private int bowAnimationTicks;
+    private int randomJumpCooldown;
+    private int diamondCooldown;
 
     public AphernixEntity(EntityType<? extends AphernixEntity> entityType, Level level) {
         super(entityType, level);
         this.setPersistenceRequired();
+        this.randomJumpCooldown = 50 + this.random.nextInt(90);
+        this.diamondCooldown = 600 + this.random.nextInt(601);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -73,6 +78,8 @@ public class AphernixEntity extends PathfinderMob {
         }
 
         protectNearestPlayer();
+        tickDiamondAppearance();
+        tickRandomJump();
 
         if (this.tickCount % 5 == 0) {
             updateBattleState();
@@ -92,6 +99,47 @@ public class AphernixEntity extends PathfinderMob {
         } else {
             this.wantedItem = null;
         }
+    }
+
+    private void tickRandomJump() {
+        if (this.randomJumpCooldown > 0) {
+            this.randomJumpCooldown--;
+            return;
+        }
+
+        this.randomJumpCooldown = 50 + this.random.nextInt(90);
+        boolean canJump = this.onGround()
+                && this.bowAnimationTicks <= 0
+                && this.getTarget() == null
+                && this.wantedItem == null;
+
+        if (canJump) {
+            this.jumpControl.jump();
+        }
+    }
+
+    private void tickDiamondAppearance() {
+        if (this.diamondCooldown > 0) {
+            this.diamondCooldown--;
+            return;
+        }
+
+        this.diamondCooldown = 600 + this.random.nextInt(601);
+        double angle = this.random.nextDouble() * Math.PI * 2.0D;
+        double distance = 1.0D + this.random.nextDouble() * 1.25D;
+        double x = this.getX() + Math.cos(angle) * distance;
+        double z = this.getZ() + Math.sin(angle) * distance;
+
+        ItemEntity diamond = new ItemEntity(
+                this.level(),
+                x,
+                this.getY() + 0.35D,
+                z,
+                new ItemStack(Items.DIAMOND)
+        );
+        diamond.setDeltaMovement(0.0D, 0.18D, 0.0D);
+        this.level().addFreshEntity(diamond);
+        this.playSound(SoundEvents.ITEM_PICKUP, 0.8F, 1.6F);
     }
 
     private void protectNearestPlayer() {
