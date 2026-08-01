@@ -36,16 +36,25 @@ jobs:
               ci/aphernix_armor_transform_overlay.part4 \
             | base64 -d > /tmp/aphernix-overlay.zip
           unzip -o /tmp/aphernix-overlay.zip -d aphernix-ci
+      - name: Apply Yusufte update
+        run: |
+          cat ci/yusufte_delta.part00 \
+              ci/yusufte_delta.part01 \
+              ci/yusufte_delta.part02 \
+              ci/yusufte_delta.part03 \
+              ci/yusufte_delta.part04 \
+            | base64 -d > /tmp/yusufte-delta.zip
+          unzip -o /tmp/yusufte-delta.zip -d aphernix-ci
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-ci/build/libs/aphernix-1.0.0.jar artifact/Aphernix-1.20.1-Forge.jar
+          cp aphernix-ci/build/libs/aphernix-1.3.0.jar artifact/Aphernix-1.20.1-v1.3.0-Yusufte.jar
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: Aphernix-1.20.1-Forge
-          path: artifact/Aphernix-1.20.1-Forge.jar
+          name: Aphernix-1.20.1-v1.3.0-Yusufte
+          path: artifact/Aphernix-1.20.1-v1.3.0-Yusufte.jar
           if-no-files-found: error
