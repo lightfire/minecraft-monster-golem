@@ -23,5 +23,13 @@ public final class AphernixMod {
         if (event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)) {
             event.accept(ModItems.APHERNIX_SPAWN_EGG);
         }
+
+        if (event.getTabKey().equals(CreativeModeTabs.INGREDIENTS)) {
+            event.accept(ModItems.ENDER_EYE_DUST);
+        }
+
+        if (event.getTabKey().equals(CreativeModeTabs.TOOLS_AND_UTILITIES)) {
+            event.accept(ModItems.ENDER_BITE);
+        }
     }
 }
