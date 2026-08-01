@@ -23,18 +23,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.8'
-      - name: Restore project
-        run: |
-          mkdir aphernix-build
-          base64 -d ci/aphernix_project.zip.b64 > /tmp/aphernix_project.zip
-          unzip -q /tmp/aphernix_project.zip -d aphernix-build
+      - name: Prepare resources
+        working-directory: aphernix-ci
+        run: bash setup-resources.sh
       - name: Build mod
-        working-directory: aphernix-build
+        working-directory: aphernix-ci
         run: gradle --no-daemon build
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-build/build/libs/*.jar artifact/Aphernix-1.20.1-Forge.jar
+          cp aphernix-ci/build/libs/aphernix-1.0.0.jar artifact/Aphernix-1.20.1-Forge.jar
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
