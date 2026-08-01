@@ -28,6 +28,14 @@ jobs:
         run: |
           bash setup-resources.sh
           bash setup-extra-resources.sh
+      - name: Apply armor and transformation update
+        run: |
+          cat ci/aphernix_armor_transform_overlay.part1 \
+              ci/aphernix_armor_transform_overlay.part2 \
+              ci/aphernix_armor_transform_overlay.part3 \
+              ci/aphernix_armor_transform_overlay.part4 \
+            | base64 -d > /tmp/aphernix-overlay.zip
+          unzip -o /tmp/aphernix-overlay.zip -d aphernix-ci
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
