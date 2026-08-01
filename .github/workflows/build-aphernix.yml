@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - build/aphernix-forge-1201-20260801
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
