@@ -1,0 +1,40 @@
+name: Build Aphernix Forge Mod
+
+on:
+  push:
+    branches:
+      - build/aphernix-forge-1201-20260801
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+      - name: Restore project
+        run: |
+          mkdir aphernix-build
+          base64 -d ci/aphernix_project.zip.b64 > /tmp/aphernix_project.zip
+          unzip -q /tmp/aphernix_project.zip -d aphernix-build
+      - name: Build mod
+        working-directory: aphernix-build
+        run: gradle --no-daemon build
+      - name: Collect JAR
+        run: |
+          mkdir artifact
+          cp aphernix-build/build/libs/*.jar artifact/Aphernix-1.20.1-Forge.jar
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aphernix-1.20.1-Forge
+          path: artifact/Aphernix-1.20.1-Forge.jar
+          if-no-files-found: error
