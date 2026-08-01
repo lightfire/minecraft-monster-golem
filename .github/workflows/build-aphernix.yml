@@ -45,6 +45,14 @@ jobs:
               ci/yusufte_delta.part04 \
             | base64 -d > /tmp/yusufte-delta.zip
           unzip -o /tmp/yusufte-delta.zip -d aphernix-ci
+      - name: Apply Olds compatibility hotfix
+        run: |
+          cat ci/olds_hotfix.part00 \
+              ci/olds_hotfix.part01 \
+              ci/olds_hotfix.part02 \
+              ci/olds_hotfix.part03 \
+            | base64 -d > /tmp/olds-hotfix.zip
+          unzip -o /tmp/olds-hotfix.zip -d aphernix-ci
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
