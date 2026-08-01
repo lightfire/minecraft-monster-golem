@@ -25,7 +25,9 @@ jobs:
           gradle-version: '8.8'
       - name: Prepare resources
         working-directory: aphernix-ci
-        run: bash setup-resources.sh
+        run: |
+          bash setup-resources.sh
+          bash setup-extra-resources.sh
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
