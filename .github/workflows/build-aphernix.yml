@@ -87,6 +87,8 @@ jobs:
         run: |
           base64 -d ci/aphernix_initfix.part00 > /tmp/aphernix-initfix.zip
           unzip -o /tmp/aphernix-initfix.zip -d aphernix-ci
+          base64 -d ci/aphernix_initfix_compile_hotfix.b64 > /tmp/aphernix-initfix-compile-hotfix.zip
+          unzip -o /tmp/aphernix-initfix-compile-hotfix.zip -d aphernix-ci
           sed -i 's/mod_version=1.4.1/mod_version=1.4.2/' aphernix-ci/gradle.properties
       - name: Build mod
         working-directory: aphernix-ci
