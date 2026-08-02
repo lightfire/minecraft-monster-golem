@@ -97,16 +97,48 @@ jobs:
           sed -i 's/AttributeSupplier\.builder()/net.minecraft.world.entity.Mob.createMobAttributes()/g' "$FILE"
           grep -q 'Mob.createMobAttributes()' "$FILE"
           sed -i 's/mod_version=1.4.2/mod_version=1.4.3/' aphernix-ci/gradle.properties
+      - name: Separate Aphernix and Yusufte bite forms
+        run: |
+          cat ci/yusufte_separate_overlay.part00 \
+              ci/yusufte_separate_overlay.part01 \
+              ci/yusufte_separate_overlay.part02 \
+              ci/yusufte_separate_overlay.part03 \
+              ci/yusufte_separate_overlay.part04 \
+              ci/yusufte_separate_overlay.part05 \
+              ci/yusufte_separate_overlay.part06 \
+            | base64 -d > /tmp/yusufte-separate-overlay.zip
+          unzip -o /tmp/yusufte-separate-overlay.zip -d aphernix-ci
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          values = {
+              'tr_tr.json': {
+                  'entity.aphernix.yusufte_diamond': 'Yusufte Elmas Bite Hali',
+                  'entity.aphernix.yusufte_old': 'Yusufte Olds Bite Hali',
+              },
+              'en_us.json': {
+                  'entity.aphernix.yusufte_diamond': 'Yusufte Diamond Bite Form',
+                  'entity.aphernix.yusufte_old': 'Yusufte Olds Bite Form',
+              },
+          }
+          root = Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
+          for filename, additions in values.items():
+              path = root / filename
+              data = json.loads(path.read_text(encoding='utf-8'))
+              data.update(additions)
+              path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          sed -i 's/mod_version=1.4.3/mod_version=1.4.4/' aphernix-ci/gradle.properties
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-ci/build/libs/aphernix-1.4.3.jar artifact/apherniixmod-FIXED-1.4.3.jar
+          cp aphernix-ci/build/libs/aphernix-1.4.4.jar artifact/apherniixmod-FIXED-1.4.4.jar
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: apherniixmod-FIXED-1.4.3
-          path: artifact/apherniixmod-FIXED-1.4.3.jar
+          name: apherniixmod-FIXED-1.4.4
+          path: artifact/apherniixmod-FIXED-1.4.4.jar
           if-no-files-found: error
