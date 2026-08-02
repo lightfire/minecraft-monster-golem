@@ -90,16 +90,23 @@ jobs:
           base64 -d ci/aphernix_initfix_compile_hotfix.b64 > /tmp/aphernix-initfix-compile-hotfix.zip
           unzip -o /tmp/aphernix-initfix-compile-hotfix.zip -d aphernix-ci
           sed -i 's/mod_version=1.4.1/mod_version=1.4.2/' aphernix-ci/gradle.properties
+      - name: Fix Yusufte chicken gravity attributes
+        run: |
+          FILE=aphernix-ci/src/main/java/com/ege/aphernix/entity/YusufteChickenEntity.java
+          grep -q 'AttributeSupplier.builder()' "$FILE"
+          sed -i 's/AttributeSupplier\.builder()/net.minecraft.world.entity.Mob.createMobAttributes()/g' "$FILE"
+          grep -q 'Mob.createMobAttributes()' "$FILE"
+          sed -i 's/mod_version=1.4.2/mod_version=1.4.3/' aphernix-ci/gradle.properties
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-ci/build/libs/aphernix-1.4.2.jar artifact/apherniixmod.jar
+          cp aphernix-ci/build/libs/aphernix-1.4.3.jar artifact/apherniixmod-FIXED-1.4.3.jar
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: apherniixmod-1.4.2
-          path: artifact/apherniixmod.jar
+          name: apherniixmod-FIXED-1.4.3
+          path: artifact/apherniixmod-FIXED-1.4.3.jar
           if-no-files-found: error
