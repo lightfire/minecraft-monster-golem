@@ -76,8 +76,7 @@ jobs:
           sed -i 's/mod_version=1.4.2/mod_version=1.4.3/' aphernix-ci/gradle.properties
       - name: Separate Aphernix and Yusufte bite forms
         run: |
-          base64 -di ci/yusufte_separate_forms.b64 > /tmp/yusufte-separate.zip
-          unzip -o /tmp/yusufte-separate.zip -d aphernix-ci
+          cp -R ci/yusufte-separate-src/src/main/. aphernix-ci/src/main/
           python - <<'PY'
           import json
           from pathlib import Path
