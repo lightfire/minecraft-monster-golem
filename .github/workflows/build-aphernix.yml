@@ -53,16 +53,41 @@ jobs:
               ci/olds_hotfix.part03 \
             | base64 -d > /tmp/olds-hotfix.zip
           unzip -o /tmp/olds-hotfix.zip -d aphernix-ci
+      - name: Apply Yusufte chicken transformation
+        run: |
+          cp aphernix-ci/src/main/resources/assets/aphernix/lang/tr_tr.json /tmp/aphernix-tr.json
+          cp aphernix-ci/src/main/resources/assets/aphernix/lang/en_us.json /tmp/aphernix-en.json
+          cat ci/yusufte_chicken_overlay.part00 \
+              ci/yusufte_chicken_overlay.part01 \
+            | base64 -d > /tmp/yusufte-chicken-overlay.zip
+          unzip -o /tmp/yusufte-chicken-overlay.zip -d aphernix-ci
+          cp /tmp/aphernix-tr.json aphernix-ci/src/main/resources/assets/aphernix/lang/tr_tr.json
+          cp /tmp/aphernix-en.json aphernix-ci/src/main/resources/assets/aphernix/lang/en_us.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          values = {
+              'tr_tr.json': 'Yusufte Tavuk Hali',
+              'en_us.json': 'Yusufte Chicken Form',
+          }
+          root = Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
+          for filename, value in values.items():
+              path = root / filename
+              data = json.loads(path.read_text(encoding='utf-8'))
+              data['entity.aphernix.yusufte_chicken'] = value
+              path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          sed -i 's/mod_version=1.3.0/mod_version=1.4.0/' aphernix-ci/gradle.properties
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-ci/build/libs/aphernix-1.3.0.jar artifact/Aphernix-1.20.1-v1.3.0-Yusufte.jar
+          cp aphernix-ci/build/libs/aphernix-1.4.0.jar artifact/Aphernix-1.20.1-v1.4.0-Yusufte-Tavuk.jar
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: Aphernix-1.20.1-v1.3.0-Yusufte
-          path: artifact/Aphernix-1.20.1-v1.3.0-Yusufte.jar
+          name: Aphernix-1.20.1-v1.4.0-Yusufte-Tavuk
+          path: artifact/Aphernix-1.20.1-v1.4.0-Yusufte-Tavuk.jar
           if-no-files-found: error
