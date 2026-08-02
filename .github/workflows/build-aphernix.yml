@@ -99,7 +99,10 @@ jobs:
           sed -i 's/mod_version=1.4.2/mod_version=1.4.3/' aphernix-ci/gradle.properties
       - name: Separate Aphernix and Yusufte bite forms
         run: |
-          unzip -o ci/yusufte_separate_overlay.zip -d aphernix-ci
+          cp -R ci/yusufte-separate-src/src/main/. aphernix-ci/src/main/
+          mkdir -p aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities
+          printf '%s\n' '{"type":"minecraft:entity","pools":[]}' > aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities/yusufte_diamond.json
+          printf '%s\n' '{"type":"minecraft:entity","pools":[]}' > aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities/yusufte_old.json
           python - <<'PY'
           import json
           from pathlib import Path
