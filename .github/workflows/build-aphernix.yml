@@ -30,52 +30,31 @@ jobs:
           bash setup-extra-resources.sh
       - name: Apply armor and transformation update
         run: |
-          cat ci/aphernix_armor_transform_overlay.part1 \
-              ci/aphernix_armor_transform_overlay.part2 \
-              ci/aphernix_armor_transform_overlay.part3 \
-              ci/aphernix_armor_transform_overlay.part4 \
-            | base64 -d > /tmp/aphernix-overlay.zip
+          cat ci/aphernix_armor_transform_overlay.part1 ci/aphernix_armor_transform_overlay.part2 ci/aphernix_armor_transform_overlay.part3 ci/aphernix_armor_transform_overlay.part4 | base64 -d > /tmp/aphernix-overlay.zip
           unzip -o /tmp/aphernix-overlay.zip -d aphernix-ci
       - name: Apply Yusufte update
         run: |
-          cat ci/yusufte_delta.part00 \
-              ci/yusufte_delta.part01 \
-              ci/yusufte_delta.part02 \
-              ci/yusufte_delta.part03 \
-              ci/yusufte_delta.part04 \
-            | base64 -d > /tmp/yusufte-delta.zip
+          cat ci/yusufte_delta.part00 ci/yusufte_delta.part01 ci/yusufte_delta.part02 ci/yusufte_delta.part03 ci/yusufte_delta.part04 | base64 -d > /tmp/yusufte-delta.zip
           unzip -o /tmp/yusufte-delta.zip -d aphernix-ci
       - name: Apply Olds compatibility hotfix
         run: |
-          cat ci/olds_hotfix.part00 \
-              ci/olds_hotfix.part01 \
-              ci/olds_hotfix.part02 \
-              ci/olds_hotfix.part03 \
-            | base64 -d > /tmp/olds-hotfix.zip
+          cat ci/olds_hotfix.part00 ci/olds_hotfix.part01 ci/olds_hotfix.part02 ci/olds_hotfix.part03 | base64 -d > /tmp/olds-hotfix.zip
           unzip -o /tmp/olds-hotfix.zip -d aphernix-ci
       - name: Apply Yusufte chicken transformation
         run: |
           cp aphernix-ci/src/main/resources/assets/aphernix/lang/tr_tr.json /tmp/aphernix-tr.json
           cp aphernix-ci/src/main/resources/assets/aphernix/lang/en_us.json /tmp/aphernix-en.json
-          cat ci/yusufte_chicken_overlay.part00 \
-              ci/yusufte_chicken_overlay.part01 \
-            | base64 -d > /tmp/yusufte-chicken-overlay.zip
+          cat ci/yusufte_chicken_overlay.part00 ci/yusufte_chicken_overlay.part01 | base64 -d > /tmp/yusufte-chicken-overlay.zip
           unzip -o /tmp/yusufte-chicken-overlay.zip -d aphernix-ci
           cp /tmp/aphernix-tr.json aphernix-ci/src/main/resources/assets/aphernix/lang/tr_tr.json
           cp /tmp/aphernix-en.json aphernix-ci/src/main/resources/assets/aphernix/lang/en_us.json
           python - <<'PY'
           import json
           from pathlib import Path
-          values = {
-              'tr_tr.json': 'Yusufte Tavuk Hali',
-              'en_us.json': 'Yusufte Chicken Form',
-          }
-          root = Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
-          for filename, value in values.items():
-              path = root / filename
-              data = json.loads(path.read_text(encoding='utf-8'))
-              data['entity.aphernix.yusufte_chicken'] = value
-              path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          values={'tr_tr.json':'Yusufte Tavuk Hali','en_us.json':'Yusufte Chicken Form'}
+          root=Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
+          for filename,value in values.items():
+              path=root/filename; data=json.loads(path.read_text(encoding='utf-8')); data['entity.aphernix.yusufte_chicken']=value; path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           sed -i 's/mod_version=1.3.0/mod_version=1.4.0/' aphernix-ci/gradle.properties
       - name: Make Yusufte fear large animals only
@@ -93,35 +72,21 @@ jobs:
       - name: Fix Yusufte chicken gravity attributes
         run: |
           FILE=aphernix-ci/src/main/java/com/ege/aphernix/entity/YusufteChickenEntity.java
-          grep -q 'AttributeSupplier.builder()' "$FILE"
           sed -i 's/AttributeSupplier\.builder()/net.minecraft.world.entity.Mob.createMobAttributes()/g' "$FILE"
-          grep -q 'Mob.createMobAttributes()' "$FILE"
           sed -i 's/mod_version=1.4.2/mod_version=1.4.3/' aphernix-ci/gradle.properties
       - name: Separate Aphernix and Yusufte bite forms
         run: |
-          cp -R ci/yusufte-separate-src/src/main/. aphernix-ci/src/main/
-          mkdir -p aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities
-          printf '%s\n' '{"type":"minecraft:entity","pools":[]}' > aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities/yusufte_diamond.json
-          printf '%s\n' '{"type":"minecraft:entity","pools":[]}' > aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities/yusufte_old.json
+          base64 -d ci/yusufte_separate_forms.b64 > /tmp/yusufte-separate.zip
+          unzip -o /tmp/yusufte-separate.zip -d aphernix-ci
           python - <<'PY'
           import json
           from pathlib import Path
-          values = {
-              'tr_tr.json': {
-                  'entity.aphernix.yusufte_diamond': 'Yusufte Elmas Bite Hali',
-                  'entity.aphernix.yusufte_old': 'Yusufte Olds Bite Hali',
-              },
-              'en_us.json': {
-                  'entity.aphernix.yusufte_diamond': 'Yusufte Diamond Bite Form',
-                  'entity.aphernix.yusufte_old': 'Yusufte Olds Bite Form',
-              },
-          }
-          root = Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
-          for filename, additions in values.items():
-              path = root / filename
-              data = json.loads(path.read_text(encoding='utf-8'))
-              data.update(additions)
-              path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          additions={
+            'tr_tr.json':{'entity.aphernix.yusufte_diamond':'Yusufte Elmas Bite Hali','entity.aphernix.yusufte_old':'Yusufte Olds Bite Hali'},
+            'en_us.json':{'entity.aphernix.yusufte_diamond':'Yusufte Diamond Bite Form','entity.aphernix.yusufte_old':'Yusufte Olds Bite Form'}}
+          root=Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
+          for filename,vals in additions.items():
+              p=root/filename; d=json.loads(p.read_text(encoding='utf-8')); d.update(vals); p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           sed -i 's/mod_version=1.4.3/mod_version=1.4.4/' aphernix-ci/gradle.properties
       - name: Build mod
