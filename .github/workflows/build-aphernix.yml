@@ -78,16 +78,21 @@ jobs:
               path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           PY
           sed -i 's/mod_version=1.3.0/mod_version=1.4.0/' aphernix-ci/gradle.properties
+      - name: Make Yusufte fear large animals only
+        run: |
+          base64 -d ci/yusufte_big_animals_hotfix.b64 > /tmp/yusufte-big-animals-hotfix.zip
+          unzip -o /tmp/yusufte-big-animals-hotfix.zip -d aphernix-ci
+          sed -i 's/mod_version=1.4.0/mod_version=1.4.1/' aphernix-ci/gradle.properties
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-ci/build/libs/aphernix-1.4.0.jar artifact/Aphernix-1.20.1-v1.4.0-Yusufte-Tavuk.jar
+          cp aphernix-ci/build/libs/aphernix-1.4.1.jar artifact/Aphernix-1.20.1-v1.4.1-Yusufte-Buyuk-Hayvan-Korkusu.jar
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: Aphernix-1.20.1-v1.4.0-Yusufte-Tavuk
-          path: artifact/Aphernix-1.20.1-v1.4.0-Yusufte-Tavuk.jar
+          name: Aphernix-1.20.1-v1.4.1-Yusufte-Buyuk-Hayvan-Korkusu
+          path: artifact/Aphernix-1.20.1-v1.4.1-Yusufte-Buyuk-Hayvan-Korkusu.jar
           if-no-files-found: error
