@@ -76,14 +76,12 @@ jobs:
           sed -i 's/mod_version=1.4.2/mod_version=1.4.3/' aphernix-ci/gradle.properties
       - name: Separate Aphernix and Yusufte bite forms
         run: |
-          base64 -d ci/yusufte_separate_forms.b64 > /tmp/yusufte-separate.zip
+          base64 -di ci/yusufte_separate_forms.b64 > /tmp/yusufte-separate.zip
           unzip -o /tmp/yusufte-separate.zip -d aphernix-ci
           python - <<'PY'
           import json
           from pathlib import Path
-          additions={
-            'tr_tr.json':{'entity.aphernix.yusufte_diamond':'Yusufte Elmas Bite Hali','entity.aphernix.yusufte_old':'Yusufte Olds Bite Hali'},
-            'en_us.json':{'entity.aphernix.yusufte_diamond':'Yusufte Diamond Bite Form','entity.aphernix.yusufte_old':'Yusufte Olds Bite Form'}}
+          additions={'tr_tr.json':{'entity.aphernix.yusufte_diamond':'Yusufte Elmas Bite Hali','entity.aphernix.yusufte_old':'Yusufte Olds Bite Hali'},'en_us.json':{'entity.aphernix.yusufte_diamond':'Yusufte Diamond Bite Form','entity.aphernix.yusufte_old':'Yusufte Olds Bite Form'}}
           root=Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
           for filename,vals in additions.items():
               p=root/filename; d=json.loads(p.read_text(encoding='utf-8')); d.update(vals); p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
