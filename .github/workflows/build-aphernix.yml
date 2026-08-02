@@ -99,15 +99,7 @@ jobs:
           sed -i 's/mod_version=1.4.2/mod_version=1.4.3/' aphernix-ci/gradle.properties
       - name: Separate Aphernix and Yusufte bite forms
         run: |
-          cat ci/yusufte_separate_overlay.part00 \
-              ci/yusufte_separate_overlay.part01 \
-              ci/yusufte_separate_overlay.part02 \
-              ci/yusufte_separate_overlay.part03 \
-              ci/yusufte_separate_overlay.part04 \
-              ci/yusufte_separate_overlay.part05 \
-              ci/yusufte_separate_overlay.part06 \
-            | base64 -d > /tmp/yusufte-separate-overlay.zip
-          unzip -o /tmp/yusufte-separate-overlay.zip -d aphernix-ci
+          unzip -o ci/yusufte_separate_overlay.zip -d aphernix-ci
           python - <<'PY'
           import json
           from pathlib import Path
