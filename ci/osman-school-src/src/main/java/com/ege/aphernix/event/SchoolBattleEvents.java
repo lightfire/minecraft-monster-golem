@@ -31,6 +31,8 @@ import java.util.Locale;
 @Mod.EventBusSubscriber(modid = AphernixMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class SchoolBattleEvents {
     private static final String SCHOOL_STARTED = "aphernix_school_battle_started";
+    private static final String SCHOOL_CART_RIDER = "aphernix_school_cart_rider";
+    private static final String EXIT_CART_AT = "aphernix_exit_cart_at";
 
     private SchoolBattleEvents() {}
 
@@ -49,6 +51,7 @@ public final class SchoolBattleEvents {
 
         if (gameTime % 10L == 0L) {
             keepBattleTargets(level);
+            letSchoolRidersLeaveCarts(level);
         }
     }
 
@@ -110,9 +113,10 @@ public final class SchoolBattleEvents {
                 cart -> !cart.isVehicle()
         ));
 
-        // Sadece Yusufte ve Aphernix vagona oturur. Osman Tuş ayakta kalıp savaşır.
-        seatInNearestCart(aphernix, carts);
-        seatInNearestCart(yusufte, carts);
+        // Sadece Yusufte ve Aphernix vagona oturur. Osman Tuş ayakta kalır.
+        // Üç saniye sonra ikisi de vagondan inip savaşa katılır.
+        seatInNearestCart(level, aphernix, carts);
+        seatInNearestCart(level, yusufte, carts);
 
         osman.setTarget(closer(osman, aphernix, yusufte));
         aphernix.setTarget(osman);
@@ -128,13 +132,35 @@ public final class SchoolBattleEvents {
         mob.setPersistenceRequired();
     }
 
-    private static void seatInNearestCart(Mob mob, List<AbstractMinecart> carts) {
+    private static void seatInNearestCart(ServerLevel level, Mob mob, List<AbstractMinecart> carts) {
         AbstractMinecart nearest = carts.stream()
                 .filter(cart -> !cart.isVehicle())
                 .min(Comparator.comparingDouble(mob::distanceToSqr))
                 .orElse(null);
         if (nearest != null && mob.startRiding(nearest, true)) {
+            mob.getPersistentData().putBoolean(SCHOOL_CART_RIDER, true);
+            mob.getPersistentData().putLong(EXIT_CART_AT, level.getGameTime() + 60L);
             carts.remove(nearest);
+        }
+    }
+
+    private static void letSchoolRidersLeaveCarts(ServerLevel level) {
+        for (ServerPlayer player : level.players()) {
+            AABB area = player.getBoundingBox().inflate(96.0D);
+            for (AphernixEntity fighter : level.getEntitiesOfClass(
+                    AphernixEntity.class,
+                    area,
+                    entity -> entity.getPersistentData().getBoolean(SCHOOL_CART_RIDER))) {
+                long exitAt = fighter.getPersistentData().getLong(EXIT_CART_AT);
+                if (fighter.isPassenger() && level.getGameTime() >= exitAt) {
+                    fighter.stopRiding();
+                    fighter.getPersistentData().remove(SCHOOL_CART_RIDER);
+                    fighter.getPersistentData().remove(EXIT_CART_AT);
+                } else if (!fighter.isPassenger()) {
+                    fighter.getPersistentData().remove(SCHOOL_CART_RIDER);
+                    fighter.getPersistentData().remove(EXIT_CART_AT);
+                }
+            }
         }
     }
 
