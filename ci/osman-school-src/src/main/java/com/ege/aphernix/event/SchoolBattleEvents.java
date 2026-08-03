@@ -109,7 +109,8 @@ public final class SchoolBattleEvents {
                 new AABB(signPos).inflate(16.0D, 8.0D, 16.0D),
                 cart -> !cart.isVehicle()
         ));
-        seatInNearestCart(osman, carts);
+
+        // Sadece Yusufte ve Aphernix vagona oturur. Osman Tuş ayakta kalıp savaşır.
         seatInNearestCart(aphernix, carts);
         seatInNearestCart(yusufte, carts);
 
