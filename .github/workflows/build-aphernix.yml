@@ -139,7 +139,7 @@ jobs:
               data.update(vals)
               path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
-          sed -i 's/mod_version=1.4.4/mod_version=1.5.1/' aphernix-ci/gradle.properties
+          sed -i 's/mod_version=1.4.4/mod_version=1.5.2/' aphernix-ci/gradle.properties
 
       - name: Build mod
         working-directory: aphernix-ci
@@ -148,11 +148,11 @@ jobs:
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-ci/build/libs/aphernix-1.5.1.jar artifact/apherniixmod-FINAL-1.5.1.jar
+          cp aphernix-ci/build/libs/aphernix-1.5.2.jar artifact/apherniixmod-FINAL-1.5.2.jar
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: apherniixmod-FINAL-1.5.1
-          path: artifact/apherniixmod-FINAL-1.5.1.jar
+          name: apherniixmod-FINAL-1.5.2
+          path: artifact/apherniixmod-FINAL-1.5.2.jar
           if-no-files-found: error
