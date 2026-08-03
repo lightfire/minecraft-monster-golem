@@ -86,16 +86,43 @@ jobs:
               p=root/filename; d=json.loads(p.read_text(encoding='utf-8')); d.update(vals); p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           sed -i 's/mod_version=1.4.3/mod_version=1.4.4/' aphernix-ci/gradle.properties
+      - name: Add Osman school battle finale
+        run: |
+          cp -R ci/osman-school-src/src/main/. aphernix-ci/src/main/
+          mkdir -p aphernix-ci/src/main/resources/assets/aphernix/textures/entity
+          base64 -d ci/osman-school-src/osman_tus.png.b64 > aphernix-ci/src/main/resources/assets/aphernix/textures/entity/osman_tus.png
+          base64 -d ci/osman-school-src/hello_tus.png.b64 > aphernix-ci/src/main/resources/assets/aphernix/textures/entity/hello_tus.png
+          mkdir -p aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities
+          for name in osman_tus hello_tus kazim_usta; do
+            printf '%s\n' '{"type":"minecraft:entity","pools":[]}' > "aphernix-ci/src/main/resources/data/aphernix/loot_tables/entities/${name}.json"
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          additions={
+            'tr_tr.json':{
+              'entity.aphernix.osman_tus':'Osman Tuş',
+              'entity.aphernix.hello_tus':'Helllo Tuş',
+              'entity.aphernix.kazim_usta':'Bıyıklı Kazım Usta'},
+            'en_us.json':{
+              'entity.aphernix.osman_tus':'Osman Tus',
+              'entity.aphernix.hello_tus':'Helllo Tus',
+              'entity.aphernix.kazim_usta':'Mustached Kazim Usta'}}
+          root=Path('aphernix-ci/src/main/resources/assets/aphernix/lang')
+          for filename,vals in additions.items():
+              p=root/filename; d=json.loads(p.read_text(encoding='utf-8')); d.update(vals); p.write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+          sed -i 's/mod_version=1.4.4/mod_version=1.5.0/' aphernix-ci/gradle.properties
       - name: Build mod
         working-directory: aphernix-ci
         run: gradle --no-daemon build
       - name: Collect JAR
         run: |
           mkdir artifact
-          cp aphernix-ci/build/libs/aphernix-1.4.4.jar artifact/apherniixmod-FIXED-1.4.4.jar
+          cp aphernix-ci/build/libs/aphernix-1.5.0.jar artifact/apherniixmod-FINAL-1.5.0.jar
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: apherniixmod-FIXED-1.4.4
-          path: artifact/apherniixmod-FIXED-1.4.4.jar
+          name: apherniixmod-FINAL-1.5.0
+          path: artifact/apherniixmod-FINAL-1.5.0.jar
           if-no-files-found: error
