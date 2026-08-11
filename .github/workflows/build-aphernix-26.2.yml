@@ -7,6 +7,12 @@ on:
     paths:
       - 'ci/aphernix262-src/**'
       - '.github/workflows/build-aphernix-26.2.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'ci/aphernix262-src/**'
+      - '.github/workflows/build-aphernix-26.2.yml'
   workflow_dispatch:
 
 jobs:
