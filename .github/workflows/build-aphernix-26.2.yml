@@ -33,6 +33,7 @@ jobs:
           rm -rf aphernix-26.2
           mkdir aphernix-26.2
           unzip -q /tmp/forge-mdk.zip -d aphernix-26.2
+          chmod +x aphernix-26.2/gradlew
 
       - name: Install Aphernix sources
         run: |
