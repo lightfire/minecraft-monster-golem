@@ -21,7 +21,7 @@ public final class AphernixMod {
         ModEntities.ENTITY_TYPES.register(modBusGroup);
 
         EntityAttributeCreationEvent.BUS.addListener(ModEvents::createAttributes);
-        PlayerInteractEvent.EntityInteract.BUS.addListener(InteractionEvents::onEntityInteract);
+        PlayerInteractEvent.EntityInteractSpecific.BUS.addListener(InteractionEvents::onEntityInteract);
         PlayerInteractEvent.RightClickBlock.BUS.addListener(SchoolBattleEvents::onRightClickBlock);
         LivingDeathEvent.BUS.addListener(SchoolBattleEvents::onDeath);
     }
