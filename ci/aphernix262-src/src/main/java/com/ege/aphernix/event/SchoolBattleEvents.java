@@ -17,11 +17,13 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public final class SchoolBattleEvents {
-    private static final String SCHOOL_STARTED = "aphernix_school_battle_started";
+    private static final Set<Long> STARTED_SIGNS = new HashSet<>();
     private SchoolBattleEvents() {}
 
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -29,11 +31,8 @@ public final class SchoolBattleEvents {
         BlockPos pos = event.getPos();
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof SignBlockEntity sign) || !isGreenSchoolSign(sign)) return;
-        if (sign.getPersistentData().getBoolean(SCHOOL_STARTED)) return;
-        sign.getPersistentData().putBoolean(SCHOOL_STARTED, true);
-        sign.setChanged();
+        if (!STARTED_SIGNS.add(pos.asLong())) return;
         startSchoolBattle(level, pos);
-        event.getEntity().displayClientMessage(Component.literal("Okul savaşı başladı!"), false);
     }
 
     private static boolean isGreenSchoolSign(SignBlockEntity sign) {
@@ -73,7 +72,7 @@ public final class SchoolBattleEvents {
     }
 
     private static void prepare(Mob mob, BlockPos pos, String name) {
-        mob.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0F, 0.0F);
+        mob.absSnapTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0F, 0.0F);
         mob.setCustomName(Component.literal(name));
         mob.setCustomNameVisible(true);
         mob.setPersistenceRequired();
@@ -82,7 +81,7 @@ public final class SchoolBattleEvents {
     private static void seat(AphernixEntity mob, List<AbstractMinecart> carts) {
         AbstractMinecart nearest = carts.stream().filter(c -> !c.isVehicle())
                 .min(Comparator.comparingDouble(mob::distanceToSqr)).orElse(null);
-        if (nearest != null && mob.startRiding(nearest, true)) carts.remove(nearest);
+        if (nearest != null && mob.startRiding(nearest)) carts.remove(nearest);
     }
 
     private static AphernixEntity closer(Mob source, AphernixEntity a, AphernixEntity b) {
