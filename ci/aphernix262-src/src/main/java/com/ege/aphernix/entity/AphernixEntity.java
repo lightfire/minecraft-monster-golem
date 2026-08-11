@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -42,11 +42,6 @@ public class AphernixEntity extends Zombie {
         goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         targetSelector.addGoal(0, new HurtByTargetGoal(this));
         targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Monster.class, true));
-    }
-
-    @Override
-    protected boolean isSunSensitive() {
-        return false;
     }
 
     public void setSchoolRideTicks(int ticks) {
