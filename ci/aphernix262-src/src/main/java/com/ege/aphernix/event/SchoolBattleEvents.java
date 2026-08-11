@@ -1,13 +1,12 @@
 package com.ege.aphernix.event;
 
-import com.ege.aphernix.AphernixMod;
 import com.ege.aphernix.entity.*;
 import com.ege.aphernix.registry.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -15,20 +14,16 @@ import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-@Mod.EventBusSubscriber(modid = AphernixMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class SchoolBattleEvents {
     private static final String SCHOOL_STARTED = "aphernix_school_battle_started";
     private SchoolBattleEvents() {}
 
-    @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         BlockPos pos = event.getPos();
@@ -94,7 +89,6 @@ public final class SchoolBattleEvents {
         return source.distanceToSqr(a) <= source.distanceToSqr(b) ? a : b;
     }
 
-    @SubscribeEvent
     public static void onDeath(LivingDeathEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
         if (event.getEntity() instanceof OsmanTusEntity osman) {
