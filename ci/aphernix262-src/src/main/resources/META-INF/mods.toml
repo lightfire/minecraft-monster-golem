@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[65,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="aphernix"
+version="2.0.0"
+displayName="Aphernix Mod"
+authors="Ege"
+description='''Aphernix, Yusufte, Osman Tus ve okul savasi modu. Minecraft 26.2 Forge surumu.'''
+
+[[dependencies.aphernix]]
+modId="forge"
+mandatory=true
+versionRange="[65.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.aphernix]]
+modId="minecraft"
+mandatory=true
+versionRange="[26.2,26.3)"
+ordering="NONE"
+side="BOTH"
