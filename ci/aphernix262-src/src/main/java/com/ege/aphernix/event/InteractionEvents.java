@@ -15,20 +15,19 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 public final class InteractionEvents {
     private InteractionEvents() {}
 
-    public static void onEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
+    public static boolean onEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
         Entity target = event.getTarget();
         Player player = event.getEntity();
         ItemStack held = player.getItemInHand(event.getHand());
 
-        if (!(player.level() instanceof ServerLevel level)) return;
+        if (!(player.level() instanceof ServerLevel level)) return false;
 
         if (target.getType() == ModEntities.YUSUFTE.get() && isSeed(held)) {
             YusufteChickenEntity chicken = new YusufteChickenEntity(ModEntities.YUSUFTE_CHICKEN.get(), level);
             replace((LivingEntity) target, chicken, level);
             consume(player, held);
             event.setCancellationResult(InteractionResult.SUCCESS);
-            event.setCanceled(true);
-            return;
+            return true;
         }
 
         if (target.getType() == ModEntities.APHERNIX.get()) {
@@ -36,20 +35,24 @@ public final class InteractionEvents {
                 replace((LivingEntity) target, new AphernixTransformedEntity(ModEntities.APHERNIX_TRANSFORMED.get(), level), level);
             } else if (held.is(ModItems.OLDS_BITE.get())) {
                 replace((LivingEntity) target, new AphernixOldEntity(ModEntities.APHERNIX_OLD.get(), level), level);
-            } else return;
+            } else return false;
             consume(player, held);
             event.setCancellationResult(InteractionResult.SUCCESS);
-            event.setCanceled(true);
-        } else if (target.getType() == ModEntities.YUSUFTE.get()) {
+            return true;
+        }
+
+        if (target.getType() == ModEntities.YUSUFTE.get()) {
             if (held.is(ModItems.DIAMOND_ENDER_BITE.get())) {
                 replace((LivingEntity) target, new YusufteDiamondEntity(ModEntities.YUSUFTE_DIAMOND.get(), level), level);
             } else if (held.is(ModItems.OLDS_BITE.get())) {
                 replace((LivingEntity) target, new YusufteOldEntity(ModEntities.YUSUFTE_OLD.get(), level), level);
-            } else return;
+            } else return false;
             consume(player, held);
             event.setCancellationResult(InteractionResult.SUCCESS);
-            event.setCanceled(true);
+            return true;
         }
+
+        return false;
     }
 
     private static boolean isSeed(ItemStack stack) {
@@ -57,7 +60,7 @@ public final class InteractionEvents {
     }
 
     private static void replace(LivingEntity source, LivingEntity replacement, ServerLevel level) {
-        replacement.moveTo(source.getX(), source.getY(), source.getZ(), source.getYRot(), source.getXRot());
+        replacement.absSnapTo(source.getX(), source.getY(), source.getZ(), source.getYRot(), source.getXRot());
         replacement.setCustomName(source.getCustomName());
         replacement.setCustomNameVisible(source.isCustomNameVisible());
         level.addFreshEntity(replacement);
