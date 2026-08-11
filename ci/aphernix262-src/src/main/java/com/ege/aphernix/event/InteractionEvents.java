@@ -1,6 +1,5 @@
 package com.ege.aphernix.event;
 
-import com.ege.aphernix.AphernixMod;
 import com.ege.aphernix.entity.*;
 import com.ege.aphernix.registry.ModEntities;
 import com.ege.aphernix.registry.ModItems;
@@ -12,15 +11,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AphernixMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class InteractionEvents {
     private InteractionEvents() {}
 
-    @SubscribeEvent
-    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
         Entity target = event.getTarget();
         Player player = event.getEntity();
         ItemStack held = player.getItemInHand(event.getHand());
