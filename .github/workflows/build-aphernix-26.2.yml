@@ -7,13 +7,11 @@ on:
     paths:
       - 'ci/aphernix262-src/**'
       - '.github/workflows/build-aphernix-26.2.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'ci/aphernix262-src/**'
-      - '.github/workflows/build-aphernix-26.2.yml'
   workflow_dispatch:
+
+concurrency:
+  group: aphernix-forge-26-2
+  cancel-in-progress: true
 
 jobs:
   build:
