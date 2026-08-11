@@ -1,15 +1,18 @@
 package com.ege.aphernix;
 
+import com.ege.aphernix.client.ClientEvents;
 import com.ege.aphernix.event.InteractionEvents;
 import com.ege.aphernix.event.ModEvents;
 import com.ege.aphernix.event.SchoolBattleEvents;
 import com.ege.aphernix.registry.ModEntities;
 import com.ege.aphernix.registry.ModItems;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 @Mod(AphernixMod.MOD_ID)
 public final class AphernixMod {
@@ -24,5 +27,9 @@ public final class AphernixMod {
         PlayerInteractEvent.EntityInteractSpecific.BUS.addListener(InteractionEvents::onEntityInteract);
         PlayerInteractEvent.RightClickBlock.BUS.addListener(SchoolBattleEvents::onRightClickBlock);
         LivingDeathEvent.BUS.addListener(SchoolBattleEvents::onDeath);
+
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            ClientEvents.init();
+        }
     }
 }
