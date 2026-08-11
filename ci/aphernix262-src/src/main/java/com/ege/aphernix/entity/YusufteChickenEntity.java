@@ -28,7 +28,7 @@ public class YusufteChickenEntity extends Chicken {
         fleeLargeAnimals();
         if (formTicks <= 0) {
             YusufteEntity yusufte = new YusufteEntity(ModEntities.YUSUFTE.get(), serverLevel);
-            yusufte.moveTo(getX(), getY(), getZ(), getYRot(), getXRot());
+            yusufte.absSnapTo(getX(), getY(), getZ(), getYRot(), getXRot());
             serverLevel.addFreshEntity(yusufte);
             discard();
         }
